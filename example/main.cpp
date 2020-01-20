@@ -1,8 +1,11 @@
 #include <Arduino.h>
 #include <jsonwrapper.hpp>
 
+using string = char*;
+
 void setup()
 {
+  json j;
   // put your setup code here, to run once:
   Serial.begin(9600);
   size_t size = 1024;
@@ -11,24 +14,21 @@ void setup()
   int i[] = {1, 2, 3, 4};
   int b[2][2] = {{2, 123}, {233, 18}};
   int dictionary[3][2] = {{23, 68}, {30, 70}, {22, 21}};
-  auto dict_key = new char *[10] { "temp", "hum" };
+  auto dict_key(unique_ptr<string>( new char *[10] { "temp", "hum" })); 
   maindoc["text"] = "Hello World";
   maindoc["number"] = 23.42f;
   maindoc["boolean"] = false;
-  array_add(&maindoc, "single_arr", i, sizeof(i) / sizeof(i[0]));
+  j.array_add(&maindoc, "single_arr", i, sizeof(i) / sizeof(i[0]));
   maindoc["single_arr"].add(123);
-  auto tchar = new char *[10] { "value1", "value2", "value3", "value4" };
-  object_add(&maindoc, i, "general_obj", 4, tchar);
-  bool logic[] = {true, false, false};
-  auto a = new char *[10] { "a", "b", "c" };
-  object_add(&maindoc, logic, "general_obj", 3, a);
-  nested_array(&maindoc["test"]["two_dim_arr"], b, 2, 2);
-  nested_object(&maindoc["test"]["array_of_object"], dictionary, 3, 2, dict_key);
+  auto tchar(unique_ptr<string>(new char *[10] { "value1", "value2", "value3", "value4" }));
+  j.object_add(&maindoc, i, "general_obj", 4, tchar.raw_ptr());
+  bool logic[] = {true, false, false};   
+  auto a(unique_ptr<string>(new char *[10] { "a", "b", "c" }));
+  j.object_add(&maindoc, logic, "general_obj", 3, a.raw_ptr());
+  j.nested_array(&maindoc["test"]["two_dim_arr"], b, 2, 2);
+  j.nested_object(&maindoc["test"]["array_of_object"], dictionary, 3, 2, dict_key.raw_ptr());
   maindoc["obj"]["nest"]["obj"]["in"] = 2;
   serializeJsonPretty(maindoc, Serial);
-  delete tchar;
-  delete a;
-  delete dict_key;
   /*
   {
   "text": "Hello World",
