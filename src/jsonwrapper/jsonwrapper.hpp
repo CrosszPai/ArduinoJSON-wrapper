@@ -99,7 +99,7 @@ public:
             auto arr = host->createNestedArray();
             for (uint8_t j = 0; j < size_per_data; j++)
             {
-                arr.add(*((data + i * size_per_data) + j));
+                arr.add(data[i][j]);
             }
         }
     }
